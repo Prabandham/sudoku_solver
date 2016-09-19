@@ -106,7 +106,6 @@ func main() {
 	}
 
 	if solveSudoku(&grid) {
-		fmt.Printf("\n")
 		printGrid(&grid)
 	} else {
 		fmt.Println("This shit is not happening !!!!")
