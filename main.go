@@ -3,7 +3,12 @@
 package main
 
 import (
+	"bufio"
+	"bytes"
 	"fmt"
+	"os"
+	"strconv"
+	"strings"
 )
 
 const (
@@ -92,17 +97,52 @@ func printGrid(grid *[N][N]int) {
 	}
 }
 
+func splitSubN(s string, n int) []string {
+	sub := ""
+	subs := []string{}
+
+	runes := bytes.Runes([]byte(s))
+	l := len(runes)
+	for i, r := range runes {
+		sub = sub + string(r)
+		if (i+1)%n == 0 {
+			subs = append(subs, sub)
+			sub = ""
+		} else if (i + 1) == l {
+			subs = append(subs, sub)
+		}
+	}
+	return subs
+}
+
 func main() {
-	var grid = [N][N]int{
-		{3, 0, 6, 5, 0, 8, 4, 0, 0},
-		{5, 2, 0, 0, 0, 0, 0, 0, 0},
-		{0, 8, 7, 0, 0, 0, 0, 3, 1},
-		{0, 0, 3, 0, 1, 0, 0, 8, 0},
-		{9, 0, 0, 8, 6, 3, 0, 0, 5},
-		{0, 5, 0, 0, 9, 0, 6, 0, 0},
-		{1, 3, 0, 0, 0, 0, 2, 5, 0},
-		{0, 0, 0, 0, 0, 0, 0, 7, 4},
-		{0, 0, 5, 2, 0, 6, 3, 0, 0},
+	scanner := bufio.NewScanner(os.Stdin)
+	var rawInput string
+	for scanner.Scan() {
+		rawInput = scanner.Text()
+	}
+	if err := scanner.Err(); err != nil {
+		fmt.Fprintln(os.Stderr, "reading standard input:", err)
+	}
+	formattedInput := strings.Split(rawInput, " ")
+	row := splitSubN(formattedInput[1], 9)
+	var grid = [9][9]int{
+		{0, 0, 0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0, 0, 0},
+	}
+	for i := range row {
+		innerSlice := splitSubN(row[i], 1)
+		for j := range innerSlice {
+			value, _ := strconv.ParseInt(innerSlice[j], 10, 64)
+			grid[i][j] = int(value)
+		}
 	}
 
 	if solveSudoku(&grid) {
@@ -111,3 +151,6 @@ func main() {
 		fmt.Println("This shit is not happening !!!!")
 	}
 }
+
+// Run with :-
+// echo "rawInput: 000604700706000009000005080070020093800000005430010070050200000300000208002301000 | go run main.go"
